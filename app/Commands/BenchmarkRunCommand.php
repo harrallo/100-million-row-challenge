@@ -395,7 +395,7 @@ final class BenchmarkRunCommand
         if ($minTime < 5) {
             // Second run for fast PRs
             $command = sprintf(
-                "hyperfine --warmup 2 --runs 11 --prepare=%s --export-json %s 'cd %s && %s'",
+                "hyperfine --warmup 2 --runs 5 --prepare=%s --export-json %s 'cd %s && %s'",
                 escapeshellarg('rm -f ' . $actualPath . ' 2> /dev/null'),
                 escapeshellarg($resultFile),
                 escapeshellarg($benchmarkDir),

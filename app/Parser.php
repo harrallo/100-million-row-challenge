@@ -147,7 +147,7 @@ final class Parser
             $first = ',';
         }
 
-        \fwrite($outFile, "\r\n}");
+        \fwrite($outFile, "\n}");
         \fclose($outFile);
     }
 }

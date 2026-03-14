@@ -12,10 +12,10 @@ final class Parser
         $keys = [];
         $dates = [];
         $datesCount = 0;
-        for ($y = 21; $y <= 26; $y++) {
+        for ($y = 1; $y <= 6; $y++) {
             for ($m = 1; $m <= 12; $m++) {
                 $daysInMonth = match($m) {
-                    2 => ($y % 4 === 0) ? 29 : 28,
+                    2 => $y === 4 ? 29 : 28,
                     4, 6, 9, 11 => 30,
                     default => 31
                 };
@@ -30,24 +30,28 @@ final class Parser
                 }
             }
         }
-
+        
         $inFile = \fopen($inPath, 'rb');
         \stream_set_read_buffer($inFile, 0);
-        $data = \fread($inFile, 181000);
+        $data = \fread($inFile, 181_000);
         $outData = [];
         $uris = [];
         $urisCount = 0;
-        $lastLine = \strrpos($data, "\n") ?: 0;
+        $lastLine = \strrpos($data, "\n");
         $lineNo = 0;
         while ($lineNo < $lastLine) {
             $currLine = \strpos($data, "\n", $lineNo + 52);
-            if ($currLine === false) break;
+            if ($currLine === false) {
+                break;
+            }
+
             $uri = \substr($data, $lineNo + 25, $currLine - $lineNo - 51);
             if (!isset($outData[$uri])) {
                 $uris[$urisCount] = $uri;
                 $outData[$uri] = $urisCount * $datesCount;
                 $urisCount++;
             }
+
             $lineNo = $currLine + 1;
         }
 
@@ -76,34 +80,34 @@ final class Parser
             $limit = $lastRow - 1010;
             do {
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
                 $rowEnd = \strpos($chunk, ',', $row);
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
             } while ($row < $limit);
 
@@ -113,7 +117,7 @@ final class Parser
                     break;
                 }
 
-                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 3, 8)]]++;
+                $all[$outData[\substr($chunk, $row, $rowEnd - $row)] + $keys[\substr($chunk, $rowEnd + 4, 7)]]++;
                 $row = $rowEnd + 52;
             }
         } while($remaining > 0);
@@ -132,7 +136,7 @@ final class Parser
                     continue;
                 }
 
-                $sums[] = '        "20' . $dates[$dateId] . '": ' . $sum;
+                $sums[] = '        "202' . $dates[$dateId] . '": ' . $sum;
             }
 
             if ($sums === []) {
@@ -143,7 +147,7 @@ final class Parser
             $first = ',';
         }
 
-        \fwrite($outFile, "\n}");
+        \fwrite($outFile, "\r\n}");
         \fclose($outFile);
     }
 }
